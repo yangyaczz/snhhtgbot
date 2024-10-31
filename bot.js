@@ -47,8 +47,61 @@ bot.use(async (ctx, next) => {
     console.log('Response time: %sms', ms);
 });
 
-// 处理 /start 命令
+const bottomMenu = {
+    reply_markup: {
+        keyboard: [
+            [{ text: '🔑 Create Wallet' }, { text: '💧 Get Tokens' }],
+            [{ text: '👛 View Balance' },  { text: '⚙️ Deploy Account' }],
+            [{ text: '✉️ Create Red Packet' }, { text: '🎁 Claim Red Packet' }],
+        ],
+        resize_keyboard: true,  // 自动调整键盘大小
+        persistent: true,       // 保持菜单始终可见
+    }
+};
+
+// // 处理 /start 命令
+// bot.command('start', async (ctx) => {
+//     const keyboard = {
+//         reply_markup: {
+//             inline_keyboard: [
+//                 [
+//                     { text: '🔑 Create Wallet', callback_data: 'generate_wallet' },
+//                     { text: '💧 Get Test Tokens', callback_data: 'fauect_' },
+//                 ],
+//                 [
+//                     { text: '👛 View Balance', callback_data: 'check_balance' },
+//                     { text: '⚙️ Deploy Account', callback_data: 'deploy_account' },
+//                 ],
+//                 [
+//                     { text: '🧧 Create Red Envelope', callback_data: 'CheckRedEnvelope' }
+//                 ],
+//                 [
+//                     { text: '🎁 Claim Red Envelope', callback_data: 'ClaimRedEnvelope' }
+//                 ],
+//             ]
+//         }
+//     };
+
+//     const welcomeMessage = `
+//     👋 *Welcome to Red Envelope Bot!*
+
+//     📝 *Available Commands: *
+//     /create_red_envelope <total_value> <number_of_packets> - Create a new red packet
+//     /claim_red_envelope <secret_key> - Claim a red packet
+
+//     ⭐️ *Quick Actions:*
+//     Use the buttons below to access wallet features
+//     `;
+
+//     await ctx.reply(welcomeMessage, {
+//         parse_mode: 'Markdown',
+//         ...keyboard
+//     });
+// });
+// Start command handler
+
 bot.command('start', async (ctx) => {
+
     const keyboard = {
         reply_markup: {
             inline_keyboard: [
@@ -69,22 +122,101 @@ bot.command('start', async (ctx) => {
             ]
         }
     };
-
     const welcomeMessage = `
-    👋 *Welcome to Red Envelope Bot!*
+🌟 *Welcome to Wallet Bot!*
 
-    📝 *Available Commands: *
-    /create_red_envelope <total_value> <number_of_packets> - Create a new red packet
-    /claim_red_envelope <secret_key> - Claim a red packet
+📝 *Available Commands:*
+/create_red_envelope <total_value> <number_of_packets> - Create a new red packet
+/claim_red_envelope <secret_key> - Claim a red packet
 
-    ⭐️ *Quick Actions:*
-    Use the buttons below to access wallet features
+⭐️ *Quick Actions:*
+Use the menu buttons below to access features
     `;
 
     await ctx.reply(welcomeMessage, {
         parse_mode: 'Markdown',
-        ...keyboard
+        ...bottomMenu
     });
+});
+
+
+// 处理菜单按钮点击
+// bot.hears('🔑 Create Wallet', async (ctx) => {
+//     await handleGenerateWallet(ctx);
+// });
+
+// bot.hears('💧 Get Tokens', async (ctx) => {
+//     await handleSendFaucet(ctx);
+// });
+
+bot.hears('👛 View Balance', async (ctx) => {
+    await handleCheckBalance(ctx);
+});
+
+// bot.hears('⚙️ Deploy Account', async (ctx) => {
+//     await handleDeployAccount(ctx);
+// });
+
+
+bot.hears('✉️ Create Red Packet', async (ctx) => {
+    try {
+        // 检查是否为私聊
+        if (ctx.chat?.type !== 'private') {
+            return ctx.reply('⚠️ For security reasons, please create red packets in private chat');
+        }
+
+        // 初始化创建流程
+        userCreateStates.set(ctx.from.id, {
+            state: CREATE_STATES.WAITING_AMOUNT
+        });
+
+        const msg = `
+🧧 *Create Red Packet*
+
+Please enter the total amount (e.g. 100):`;
+
+        await ctx.reply(msg, {
+            parse_mode: 'Markdown',
+            reply_markup: {
+                force_reply: true,
+                selective: true,
+                input_field_placeholder: "Enter amount (TOKEN)"
+            }
+        });
+
+    } catch (error) {
+        console.error('Error in create red packet flow:', error);
+        await ctx.reply('❌ An error occurred. Please try again.');
+    }
+});
+
+bot.hears('🎁 Claim Red Packet', async (ctx) => {
+    try {
+        // 检查是否为私聊
+        if (ctx.chat?.type !== 'private') {
+            return ctx.reply('⚠️ For security reasons, please claim red packets in private chat');
+        }
+
+        // 初始化领取流程
+        await ctx.reply(`
+🎁 *Claim Red Packet*
+
+Please enter the secret key:`, {
+            parse_mode: 'Markdown',
+            reply_markup: {
+                force_reply: true,
+                selective: true,
+                input_field_placeholder: "Enter secret key (0x...)"
+            }
+        });
+
+        // 设置用户状态为等待输入密钥
+        userClaimStates.set(ctx.from.id, true);
+
+    } catch (error) {
+        console.error('Error starting claim process:', error);
+        await ctx.reply('❌ An error occurred. Please try again.');
+    }
 });
 
 

@@ -1048,620 +1048,620 @@ const erc20ABI = [
 
 const RedEnvelopeABI = [
     {
-      "type": "impl",
-      "name": "RedEnvelopeImpl",
-      "interface_name": "contracts::RedEnvelope::IRedEnvelope"
+        "type": "impl",
+        "name": "RedEnvelopeImpl",
+        "interface_name": "contracts::RedEnvelope::IRedEnvelope"
     },
     {
-      "type": "enum",
-      "name": "core::bool",
-      "variants": [
-        {
-          "name": "False",
-          "type": "()"
-        },
-        {
-          "name": "True",
-          "type": "()"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "core::integer::u256",
-      "members": [
-        {
-          "name": "low",
-          "type": "core::integer::u128"
-        },
-        {
-          "name": "high",
-          "type": "core::integer::u128"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "contracts::RedEnvelope::RedEnvelope::RedEnvelopeInfo",
-      "members": [
-        {
-          "name": "creator",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "name": "token",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "name": "distribution_type",
-          "type": "core::bool"
-        },
-        {
-          "name": "expiry_time",
-          "type": "core::integer::u64"
-        },
-        {
-          "name": "recipient_count",
-          "type": "core::integer::u32"
-        },
-        {
-          "name": "total_amount",
-          "type": "core::integer::u256"
-        },
-        {
-          "name": "claimed_count",
-          "type": "core::integer::u32"
-        },
-        {
-          "name": "is_active",
-          "type": "core::bool"
-        }
-      ]
-    },
-    {
-      "type": "interface",
-      "name": "contracts::RedEnvelope::IRedEnvelope",
-      "items": [
-        {
-          "type": "function",
-          "name": "create_red_envelope",
-          "inputs": [
+        "type": "enum",
+        "name": "core::bool",
+        "variants": [
             {
-              "name": "token",
-              "type": "core::starknet::contract_address::ContractAddress"
+                "name": "False",
+                "type": "()"
             },
             {
-              "name": "distribution_type",
-              "type": "core::bool"
+                "name": "True",
+                "type": "()"
+            }
+        ]
+    },
+    {
+        "type": "struct",
+        "name": "core::integer::u256",
+        "members": [
+            {
+                "name": "low",
+                "type": "core::integer::u128"
             },
             {
-              "name": "expiry_time",
-              "type": "core::integer::u64"
+                "name": "high",
+                "type": "core::integer::u128"
+            }
+        ]
+    },
+    {
+        "type": "struct",
+        "name": "contracts::RedEnvelope::RedEnvelope::RedEnvelopeInfo",
+        "members": [
+            {
+                "name": "creator",
+                "type": "core::starknet::contract_address::ContractAddress"
             },
             {
-              "name": "recipient_count",
-              "type": "core::integer::u32"
+                "name": "token",
+                "type": "core::starknet::contract_address::ContractAddress"
             },
             {
-              "name": "total_amount",
-              "type": "core::integer::u256"
-            }
-          ],
-          "outputs": [
+                "name": "distribution_type",
+                "type": "core::bool"
+            },
             {
-              "type": "core::felt252"
-            }
-          ],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "claim_red_envelope",
-          "inputs": [
+                "name": "expiry_time",
+                "type": "core::integer::u64"
+            },
             {
-              "name": "envelope_sec",
-              "type": "core::felt252"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "get_envelope_info",
-          "inputs": [
+                "name": "recipient_count",
+                "type": "core::integer::u32"
+            },
             {
-              "name": "envelope_id",
-              "type": "core::integer::u128"
-            }
-          ],
-          "outputs": [
+                "name": "total_amount",
+                "type": "core::integer::u256"
+            },
             {
-              "type": "contracts::RedEnvelope::RedEnvelope::RedEnvelopeInfo"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "get_block_timestamp",
-          "inputs": [],
-          "outputs": [
+                "name": "claimed_count",
+                "type": "core::integer::u32"
+            },
             {
-              "type": "core::integer::u64"
+                "name": "is_active",
+                "type": "core::bool"
             }
-          ],
-          "state_mutability": "view"
-        }
-      ]
+        ]
     },
     {
-      "type": "constructor",
-      "name": "constructor",
-      "inputs": []
+        "type": "interface",
+        "name": "contracts::RedEnvelope::IRedEnvelope",
+        "items": [
+            {
+                "type": "function",
+                "name": "create_red_envelope",
+                "inputs": [
+                    {
+                        "name": "token",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "distribution_type",
+                        "type": "core::bool"
+                    },
+                    {
+                        "name": "expiry_time",
+                        "type": "core::integer::u64"
+                    },
+                    {
+                        "name": "recipient_count",
+                        "type": "core::integer::u32"
+                    },
+                    {
+                        "name": "total_amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::felt252"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "claim_red_envelope",
+                "inputs": [
+                    {
+                        "name": "envelope_sec",
+                        "type": "core::felt252"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "get_envelope_info",
+                "inputs": [
+                    {
+                        "name": "envelope_id",
+                        "type": "core::integer::u128"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "contracts::RedEnvelope::RedEnvelope::RedEnvelopeInfo"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "get_block_timestamp",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u64"
+                    }
+                ],
+                "state_mutability": "view"
+            }
+        ]
     },
     {
-      "type": "event",
-      "name": "contracts::RedEnvelope::RedEnvelope::EnvelopeCreated",
-      "kind": "struct",
-      "members": [
-        {
-          "name": "envelope_id",
-          "type": "core::integer::u128",
-          "kind": "data"
-        },
-        {
-          "name": "envelope_sec",
-          "type": "core::felt252",
-          "kind": "data"
-        },
-        {
-          "name": "creator",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "data"
-        },
-        {
-          "name": "token",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "data"
-        },
-        {
-          "name": "total_amount",
-          "type": "core::integer::u256",
-          "kind": "data"
-        },
-        {
-          "name": "recipient_count",
-          "type": "core::integer::u32",
-          "kind": "data"
-        }
-      ]
+        "type": "constructor",
+        "name": "constructor",
+        "inputs": []
     },
     {
-      "type": "event",
-      "name": "contracts::RedEnvelope::RedEnvelope::EnvelopeClaimed",
-      "kind": "struct",
-      "members": [
-        {
-          "name": "envelope_id",
-          "type": "core::integer::u128",
-          "kind": "data"
-        },
-        {
-          "name": "claimer",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "data"
-        },
-        {
-          "name": "amount",
-          "type": "core::integer::u256",
-          "kind": "data"
-        }
-      ]
+        "type": "event",
+        "name": "contracts::RedEnvelope::RedEnvelope::EnvelopeCreated",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "envelope_id",
+                "type": "core::integer::u128",
+                "kind": "data"
+            },
+            {
+                "name": "envelope_sec",
+                "type": "core::felt252",
+                "kind": "data"
+            },
+            {
+                "name": "creator",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            },
+            {
+                "name": "token",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            },
+            {
+                "name": "total_amount",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "recipient_count",
+                "type": "core::integer::u32",
+                "kind": "data"
+            }
+        ]
     },
     {
-      "type": "event",
-      "name": "contracts::RedEnvelope::RedEnvelope::EnvelopeRefunded",
-      "kind": "struct",
-      "members": [
-        {
-          "name": "envelope_id",
-          "type": "core::integer::u128",
-          "kind": "data"
-        },
-        {
-          "name": "refunder",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "data"
-        },
-        {
-          "name": "remaining_amount",
-          "type": "core::integer::u256",
-          "kind": "data"
-        }
-      ]
+        "type": "event",
+        "name": "contracts::RedEnvelope::RedEnvelope::EnvelopeClaimed",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "envelope_id",
+                "type": "core::integer::u128",
+                "kind": "data"
+            },
+            {
+                "name": "claimer",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            },
+            {
+                "name": "amount",
+                "type": "core::integer::u256",
+                "kind": "data"
+            }
+        ]
     },
     {
-      "type": "event",
-      "name": "contracts::RedEnvelope::RedEnvelope::Event",
-      "kind": "enum",
-      "variants": [
-        {
-          "name": "EnvelopeCreated",
-          "type": "contracts::RedEnvelope::RedEnvelope::EnvelopeCreated",
-          "kind": "nested"
-        },
-        {
-          "name": "EnvelopeClaimed",
-          "type": "contracts::RedEnvelope::RedEnvelope::EnvelopeClaimed",
-          "kind": "nested"
-        },
-        {
-          "name": "EnvelopeRefunded",
-          "type": "contracts::RedEnvelope::RedEnvelope::EnvelopeRefunded",
-          "kind": "nested"
-        }
-      ]
+        "type": "event",
+        "name": "contracts::RedEnvelope::RedEnvelope::EnvelopeRefunded",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "envelope_id",
+                "type": "core::integer::u128",
+                "kind": "data"
+            },
+            {
+                "name": "refunder",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            },
+            {
+                "name": "remaining_amount",
+                "type": "core::integer::u256",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "contracts::RedEnvelope::RedEnvelope::Event",
+        "kind": "enum",
+        "variants": [
+            {
+                "name": "EnvelopeCreated",
+                "type": "contracts::RedEnvelope::RedEnvelope::EnvelopeCreated",
+                "kind": "nested"
+            },
+            {
+                "name": "EnvelopeClaimed",
+                "type": "contracts::RedEnvelope::RedEnvelope::EnvelopeClaimed",
+                "kind": "nested"
+            },
+            {
+                "name": "EnvelopeRefunded",
+                "type": "contracts::RedEnvelope::RedEnvelope::EnvelopeRefunded",
+                "kind": "nested"
+            }
+        ]
     }
 ]
 
 const GameTokenABI = [
     {
-      "name": "MockTokenImpl",
-      "type": "impl",
-      "interface_name": "contracts::mock_contracts::MockToken::IMockToken"
+        "name": "MockTokenImpl",
+        "type": "impl",
+        "interface_name": "contracts::mock_contracts::MockToken::IMockToken"
     },
     {
-      "name": "core::integer::u256",
-      "type": "struct",
-      "members": [
-        {
-          "name": "low",
-          "type": "core::integer::u128"
-        },
-        {
-          "name": "high",
-          "type": "core::integer::u128"
-        }
-      ]
-    },
-    {
-      "name": "contracts::mock_contracts::MockToken::IMockToken",
-      "type": "interface",
-      "items": [
-        {
-          "name": "mint",
-          "type": "function",
-          "inputs": [
+        "name": "core::integer::u256",
+        "type": "struct",
+        "members": [
             {
-              "name": "recipient",
-              "type": "core::starknet::contract_address::ContractAddress"
+                "name": "low",
+                "type": "core::integer::u128"
             },
             {
-              "name": "amount",
-              "type": "core::integer::u256"
+                "name": "high",
+                "type": "core::integer::u128"
             }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        }
-      ]
+        ]
     },
     {
-      "name": "ERC20Impl",
-      "type": "impl",
-      "interface_name": "openzeppelin_token::erc20::interface::ERC20ABI"
+        "name": "contracts::mock_contracts::MockToken::IMockToken",
+        "type": "interface",
+        "items": [
+            {
+                "name": "mint",
+                "type": "function",
+                "inputs": [
+                    {
+                        "name": "recipient",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            }
+        ]
     },
     {
-      "name": "core::bool",
-      "type": "enum",
-      "variants": [
-        {
-          "name": "False",
-          "type": "()"
-        },
-        {
-          "name": "True",
-          "type": "()"
-        }
-      ]
+        "name": "ERC20Impl",
+        "type": "impl",
+        "interface_name": "openzeppelin_token::erc20::interface::ERC20ABI"
     },
     {
-      "name": "core::byte_array::ByteArray",
-      "type": "struct",
-      "members": [
-        {
-          "name": "data",
-          "type": "core::array::Array::<core::bytes_31::bytes31>"
-        },
-        {
-          "name": "pending_word",
-          "type": "core::felt252"
-        },
-        {
-          "name": "pending_word_len",
-          "type": "core::integer::u32"
-        }
-      ]
-    },
-    {
-      "name": "openzeppelin_token::erc20::interface::ERC20ABI",
-      "type": "interface",
-      "items": [
-        {
-          "name": "total_supply",
-          "type": "function",
-          "inputs": [],
-          "outputs": [
+        "name": "core::bool",
+        "type": "enum",
+        "variants": [
             {
-              "type": "core::integer::u256"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "name": "balance_of",
-          "type": "function",
-          "inputs": [
-            {
-              "name": "account",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ],
-          "outputs": [
-            {
-              "type": "core::integer::u256"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "name": "allowance",
-          "type": "function",
-          "inputs": [
-            {
-              "name": "owner",
-              "type": "core::starknet::contract_address::ContractAddress"
+                "name": "False",
+                "type": "()"
             },
             {
-              "name": "spender",
-              "type": "core::starknet::contract_address::ContractAddress"
+                "name": "True",
+                "type": "()"
             }
-          ],
-          "outputs": [
-            {
-              "type": "core::integer::u256"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "name": "transfer",
-          "type": "function",
-          "inputs": [
-            {
-              "name": "recipient",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "amount",
-              "type": "core::integer::u256"
-            }
-          ],
-          "outputs": [
-            {
-              "type": "core::bool"
-            }
-          ],
-          "state_mutability": "external"
-        },
-        {
-          "name": "transfer_from",
-          "type": "function",
-          "inputs": [
-            {
-              "name": "sender",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "recipient",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "amount",
-              "type": "core::integer::u256"
-            }
-          ],
-          "outputs": [
-            {
-              "type": "core::bool"
-            }
-          ],
-          "state_mutability": "external"
-        },
-        {
-          "name": "approve",
-          "type": "function",
-          "inputs": [
-            {
-              "name": "spender",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "amount",
-              "type": "core::integer::u256"
-            }
-          ],
-          "outputs": [
-            {
-              "type": "core::bool"
-            }
-          ],
-          "state_mutability": "external"
-        },
-        {
-          "name": "name",
-          "type": "function",
-          "inputs": [],
-          "outputs": [
-            {
-              "type": "core::byte_array::ByteArray"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "name": "symbol",
-          "type": "function",
-          "inputs": [],
-          "outputs": [
-            {
-              "type": "core::byte_array::ByteArray"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "name": "decimals",
-          "type": "function",
-          "inputs": [],
-          "outputs": [
-            {
-              "type": "core::integer::u8"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "name": "totalSupply",
-          "type": "function",
-          "inputs": [],
-          "outputs": [
-            {
-              "type": "core::integer::u256"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "name": "balanceOf",
-          "type": "function",
-          "inputs": [
-            {
-              "name": "account",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ],
-          "outputs": [
-            {
-              "type": "core::integer::u256"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "name": "transferFrom",
-          "type": "function",
-          "inputs": [
-            {
-              "name": "sender",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "recipient",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "amount",
-              "type": "core::integer::u256"
-            }
-          ],
-          "outputs": [
-            {
-              "type": "core::bool"
-            }
-          ],
-          "state_mutability": "external"
-        }
-      ]
+        ]
     },
     {
-      "name": "constructor",
-      "type": "constructor",
-      "inputs": []
+        "name": "core::byte_array::ByteArray",
+        "type": "struct",
+        "members": [
+            {
+                "name": "data",
+                "type": "core::array::Array::<core::bytes_31::bytes31>"
+            },
+            {
+                "name": "pending_word",
+                "type": "core::felt252"
+            },
+            {
+                "name": "pending_word_len",
+                "type": "core::integer::u32"
+            }
+        ]
     },
     {
-      "kind": "struct",
-      "name": "openzeppelin_token::erc20::erc20::ERC20Component::Transfer",
-      "type": "event",
-      "members": [
-        {
-          "kind": "key",
-          "name": "from",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "kind": "key",
-          "name": "to",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "kind": "data",
-          "name": "value",
-          "type": "core::integer::u256"
-        }
-      ]
+        "name": "openzeppelin_token::erc20::interface::ERC20ABI",
+        "type": "interface",
+        "items": [
+            {
+                "name": "total_supply",
+                "type": "function",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "name": "balance_of",
+                "type": "function",
+                "inputs": [
+                    {
+                        "name": "account",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "name": "allowance",
+                "type": "function",
+                "inputs": [
+                    {
+                        "name": "owner",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "spender",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "name": "transfer",
+                "type": "function",
+                "inputs": [
+                    {
+                        "name": "recipient",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "name": "transfer_from",
+                "type": "function",
+                "inputs": [
+                    {
+                        "name": "sender",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "recipient",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "name": "approve",
+                "type": "function",
+                "inputs": [
+                    {
+                        "name": "spender",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "name": "name",
+                "type": "function",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::byte_array::ByteArray"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "name": "symbol",
+                "type": "function",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::byte_array::ByteArray"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "name": "decimals",
+                "type": "function",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u8"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "name": "totalSupply",
+                "type": "function",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "name": "balanceOf",
+                "type": "function",
+                "inputs": [
+                    {
+                        "name": "account",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "name": "transferFrom",
+                "type": "function",
+                "inputs": [
+                    {
+                        "name": "sender",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "recipient",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            }
+        ]
     },
     {
-      "kind": "struct",
-      "name": "openzeppelin_token::erc20::erc20::ERC20Component::Approval",
-      "type": "event",
-      "members": [
-        {
-          "kind": "key",
-          "name": "owner",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "kind": "key",
-          "name": "spender",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "kind": "data",
-          "name": "value",
-          "type": "core::integer::u256"
-        }
-      ]
+        "name": "constructor",
+        "type": "constructor",
+        "inputs": []
     },
     {
-      "kind": "enum",
-      "name": "openzeppelin_token::erc20::erc20::ERC20Component::Event",
-      "type": "event",
-      "variants": [
-        {
-          "kind": "nested",
-          "name": "Transfer",
-          "type": "openzeppelin_token::erc20::erc20::ERC20Component::Transfer"
-        },
-        {
-          "kind": "nested",
-          "name": "Approval",
-          "type": "openzeppelin_token::erc20::erc20::ERC20Component::Approval"
-        }
-      ]
+        "kind": "struct",
+        "name": "openzeppelin_token::erc20::erc20::ERC20Component::Transfer",
+        "type": "event",
+        "members": [
+            {
+                "kind": "key",
+                "name": "from",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "kind": "key",
+                "name": "to",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "kind": "data",
+                "name": "value",
+                "type": "core::integer::u256"
+            }
+        ]
     },
     {
-      "kind": "enum",
-      "name": "contracts::mock_contracts::MockToken::MockToken::Event",
-      "type": "event",
-      "variants": [
-        {
-          "kind": "flat",
-          "name": "ERC20Event",
-          "type": "openzeppelin_token::erc20::erc20::ERC20Component::Event"
-        }
-      ]
+        "kind": "struct",
+        "name": "openzeppelin_token::erc20::erc20::ERC20Component::Approval",
+        "type": "event",
+        "members": [
+            {
+                "kind": "key",
+                "name": "owner",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "kind": "key",
+                "name": "spender",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "kind": "data",
+                "name": "value",
+                "type": "core::integer::u256"
+            }
+        ]
+    },
+    {
+        "kind": "enum",
+        "name": "openzeppelin_token::erc20::erc20::ERC20Component::Event",
+        "type": "event",
+        "variants": [
+            {
+                "kind": "nested",
+                "name": "Transfer",
+                "type": "openzeppelin_token::erc20::erc20::ERC20Component::Transfer"
+            },
+            {
+                "kind": "nested",
+                "name": "Approval",
+                "type": "openzeppelin_token::erc20::erc20::ERC20Component::Approval"
+            }
+        ]
+    },
+    {
+        "kind": "enum",
+        "name": "contracts::mock_contracts::MockToken::MockToken::Event",
+        "type": "event",
+        "variants": [
+            {
+                "kind": "flat",
+                "name": "ERC20Event",
+                "type": "openzeppelin_token::erc20::erc20::ERC20Component::Event"
+            }
+        ]
     }
 ]
 
@@ -1919,7 +1919,7 @@ export async function handleDeployAccount(ctx) {
 
     } catch (error) {
         console.error('Account deployment error:', error);
-        
+
         let errorMessage = '❌ Failed to deploy account. ';
         if (error.message?.includes('insufficient funds')) {
             errorMessage += 'Insufficient funds for deployment';
@@ -1928,7 +1928,7 @@ export async function handleDeployAccount(ctx) {
         } else {
             errorMessage += 'Please try again later';
         }
-        
+
         await ctx.reply(errorMessage);
     }
 }
@@ -2025,7 +2025,7 @@ export async function handleCheckBalance(ctx) {
 
     } catch (error) {
         console.error('Balance check error:', error);
-        
+
         let errorMessage = '❌ Failed to check balance. ';
         if (error.message?.includes('network')) {
             errorMessage += 'Network connection error';
@@ -2034,12 +2034,10 @@ export async function handleCheckBalance(ctx) {
         } else {
             errorMessage += 'Please try again later';
         }
-        
+
         await ctx.reply(errorMessage);
     }
 }
-
-
 
 
 // fashui
@@ -2088,7 +2086,7 @@ export async function handleSendFaucet(ctx) {
                 contractAddress: ETH_ADDRESS,
                 entrypoint: 'transfer',
                 calldata: CallData.compile([
-                    walletData.address, 
+                    walletData.address,
                     cairo.uint256(ethers.utils.parseEther('0.001'))
                 ])
             },
@@ -2096,7 +2094,7 @@ export async function handleSendFaucet(ctx) {
                 contractAddress: GAME_TOKEN_ADDRESS,
                 entrypoint: 'mint',
                 calldata: CallData.compile([
-                    walletData.address, 
+                    walletData.address,
                     cairo.uint256(ethers.utils.parseEther('100'))
                 ])
             }
@@ -2113,12 +2111,15 @@ export async function handleSendFaucet(ctx) {
             '• 0.001 ETH\n' +
             '• 100 Game Tokens\n\n' +
             `Transaction Details: [View on Explorer](${url})`,
-            { parse_mode: 'Markdown' }
+            {
+                parse_mode: 'Markdown',
+                disable_web_page_preview: true
+            }
         );
 
     } catch (error) {
         console.error('Faucet transfer error:', error);
-        
+
         let errorMessage = '❌ Faucet transfer failed. ';
         if (error.message?.includes('insufficient funds')) {
             errorMessage += 'Faucet is currently empty';
@@ -2127,7 +2128,7 @@ export async function handleSendFaucet(ctx) {
         } else {
             errorMessage += 'Please try again later';
         }
-        
+
         await ctx.reply(errorMessage);
     }
 }
@@ -2177,7 +2178,7 @@ export async function handleCreateRedEnvelope(ctx) {
 
         // 查询余额
         const balance = await getWalletBalance(GAME_TOKEN_ADDRESS, walletData.address);
-        
+
         if (ethers.utils.parseEther(balance.toString()).lt(ethers.utils.parseEther(amount))) {
             return ctx.reply(
                 '❌ 余额不足\n\n' +
@@ -2189,14 +2190,14 @@ export async function handleCreateRedEnvelope(ctx) {
 
         // 发送创建红包交易
         await ctx.reply('💰 *创建红包中...*\n', { parse_mode: 'Markdown' });
-        
+
         const provider = new RpcProvider({ nodeUrl: process.env.RPC_URL });
         const account = new Account(provider, walletData.address, walletData.privateKey);
-        
+
         const redEnvelopeContract = new Contract(RedEnvelopeABI, RED_ENVELOPE_ADDRESS, account);
 
         const parsedAmount = ethers.utils.parseEther(amount);
-        
+
         // 执行 multicall: approve + create
         const multicall = await account.execute([
             {
@@ -2252,7 +2253,10 @@ export async function handleCreateRedEnvelope(ctx) {
             `红包口令: *${envelopeSecHex}*\n` +
             `交易详情: ${url}\n\n` +
             '可以将红包分享到群组中供他人领取',
-            { parse_mode: 'Markdown' }
+            {
+                parse_mode: 'Markdown',
+                disable_web_page_preview: true
+            }
         );
 
     } catch (error) {
@@ -2295,7 +2299,7 @@ export async function handleClaimRedEnvelope(ctx) {
 
         // 发送领取红包交易
         await ctx.reply('🧧 *领取红包中...*\n', { parse_mode: 'Markdown' });
-        
+
         const provider = new RpcProvider({ nodeUrl: process.env.RPC_URL });
         const account = new Account(provider, walletData.address, walletData.privateKey);
         const redEnvelopeContract = new Contract(RedEnvelopeABI, RED_ENVELOPE_ADDRESS, account);
@@ -2328,7 +2332,10 @@ export async function handleClaimRedEnvelope(ctx) {
                 '🎉 *红包领取成功*\n\n' +
                 `领取金额: *${ethers.utils.formatEther(claimAmount.toString())} TOKEN*\n` +
                 `交易详情: ${url}`,
-                { parse_mode: 'Markdown' }
+                {
+                    parse_mode: 'Markdown',
+                    disable_web_page_preview: true
+                }
             );
 
             // 打印详细日志
@@ -2346,7 +2353,7 @@ export async function handleClaimRedEnvelope(ctx) {
     } catch (error) {
         console.error('领取红包失败:', error);
         console.error('错误详情:', error.message);
-        
+
         // 根据错误类型返回适当的错误信息
         let errorMessage = '❌ 领取红包失败';
         if (error.message.includes('already claimed')) {
@@ -2358,7 +2365,7 @@ export async function handleClaimRedEnvelope(ctx) {
         } else if (error.message.includes('no remaining')) {
             errorMessage = '❌ 红包已经被领完了';
         }
-        
+
         await ctx.reply(errorMessage);
     }
 }
@@ -2393,7 +2400,7 @@ export async function createRedEnvelope(ctx, amount, count) {
 
         // 查询余额
         const balance = await getWalletBalance(GAME_TOKEN_ADDRESS, walletData.address);
-        
+
         if (ethers.utils.parseEther(balance.toString()).lt(ethers.utils.parseEther(amount))) {
             return ctx.reply(
                 '❌ Insufficient balance\n\n' +
@@ -2405,14 +2412,14 @@ export async function createRedEnvelope(ctx, amount, count) {
 
         // 发送创建红包交易
         await ctx.reply('💰 *Creating red packet...*\n', { parse_mode: 'Markdown' });
-        
+
         const provider = new RpcProvider({ nodeUrl: process.env.RPC_URL });
         const account = new Account(provider, walletData.address, walletData.privateKey);
-        
+
         const redEnvelopeContract = new Contract(RedEnvelopeABI, RED_ENVELOPE_ADDRESS, account);
 
         const parsedAmount = ethers.utils.parseEther(amount);
-        
+
         // 执行 multicall: approve + create
         const multicall = await account.execute([
             {
@@ -2449,14 +2456,30 @@ export async function createRedEnvelope(ctx, amount, count) {
 
         // 发送创建成功信息
         await ctx.reply(
-            '🧧 *Red Packet Created Successfully*\n\n' +
-            `Total Amount: *${amount} TOKEN*\n` +
-            `Number of Packets: *${count}*\n` +
-            `Secret Key: *${envelopeSecHex}*\n` +
-            `Transaction Details: ${url}\n\n` +
-            'You can now share this red packet in groups',
+            '🎉 *Red Packet Created Successfully*\n\n' +
+            '📝 *Details:*\n' +
+            `• Amount: *${amount} TOKEN*\n` +
+            `• Packets: *${count}*\n` +
+            `• Average: *${(amount / count).toFixed(2)} TOKEN*\n\n` +
+            `🔍 [View Transaction](${url})\n\n` +
+            '📢 *Share Instructions:*\n' +
+            '1. Copy the secret key below\n' +
+            '2. Share it in your group\n' +
+            '3. Others can claim using this key',
+            {
+                parse_mode: 'Markdown',
+                disable_web_page_preview: true
+            }
+        );
+
+        await ctx.reply(
+            '🔑 *Secret Key Below*\n' +
+            'Copy the next message to share:',
             { parse_mode: 'Markdown' }
         );
+
+        // Send only the secret key for easiest copying
+        return ctx.reply(`${envelopeSecHex}`);
 
     } catch (error) {
         console.error('Failed to create red packet:', error);
@@ -2479,7 +2502,7 @@ export async function claimRedEnvelope(ctx, password) {
 
         // 发送领取红包交易
         await ctx.reply('🎁 *Claiming red packet...*\n', { parse_mode: 'Markdown' });
-        
+
         const provider = new RpcProvider({ nodeUrl: process.env.RPC_URL });
         const account = new Account(provider, walletData.address, walletData.privateKey);
         const redEnvelopeContract = new Contract(RedEnvelopeABI, RED_ENVELOPE_ADDRESS, account);
@@ -2506,8 +2529,12 @@ export async function claimRedEnvelope(ctx, password) {
             await ctx.reply(
                 '🎉 *Successfully Claimed!*\n\n' +
                 `Amount Received: *${ethers.utils.formatEther(claimAmount.toString())} TOKEN*\n` +
-                `Transaction Details: ${url}`,
-                { parse_mode: 'Markdown' }
+                `🔍 [View Transaction](${url})\n\n`,
+                
+                {
+                    parse_mode: 'Markdown',
+                    disable_web_page_preview: true
+                }
             );
 
             // 打印详细日志
@@ -2525,7 +2552,7 @@ export async function claimRedEnvelope(ctx, password) {
     } catch (error) {
         console.error('Failed to claim red packet:', error);
         console.error('Error details:', error.message);
-        
+
         let errorMessage = '❌ Failed to claim red packet';
         if (error.message.includes('already claimed')) {
             errorMessage = '❌ You have already claimed this red packet';
@@ -2536,7 +2563,7 @@ export async function claimRedEnvelope(ctx, password) {
         } else if (error.message.includes('no remaining')) {
             errorMessage = '❌ Red packet has been fully claimed';
         }
-        
+
         await ctx.reply(errorMessage);
     }
 }
