@@ -1935,41 +1935,49 @@ export async function handleDeployAccount(ctx) {
 
 export async function handleShowWallet(ctx) {
     try {
-        // 检查是否为私聊
+        // Check if it's a private chat
         if (ctx.chat.type !== 'private') {
-            return ctx.reply('⚠️ 该命令只能在私聊中使用！');
+            return ctx.reply('⚠️ For security reasons, this command can only be used in private chat');
         }
 
-        // 获取钱包信息
+        // Get wallet information
         const wallet = await WalletStorage.getWallet(ctx.from.id);
 
-        // 发送加密信息
+        if (!wallet) {
+            return ctx.reply('❌ Wallet not found. Please generate a wallet first.');
+        }
+
+        // Send sensitive information
         const message = await ctx.reply(
-            '🔐 钱包信息（60秒后自动删除）：\n\n' +
-            `地址:\n\`${wallet.address}\`\n\n` +
-            `私钥:\n\`${wallet.privateKey}\`\n\n` +
-            '⚠️ 警告：\n' +
-            '1. 请立即将这些信息保存到安全的离线位置\n' +
-            '2. 永远不要分享你的私钥和助记词\n' +
-            '3. 此消息将在60秒后自动删除',
+            '🔐 *Wallet Information* (auto-delete in 10 seconds)\n\n' +
+            '*Address:*\n' +
+            `\`${wallet.address}\`\n\n` +
+            '*Private Key:*\n' +
+            `\`${wallet.privateKey}\`\n\n` +
+            '⚠️ *SECURITY WARNINGS:*\n' +
+            '1. Save this information to a secure offline location immediately\n' +
+            '2. Never share your private key with anyone\n' +
+            '3. This message will self-destruct in 10 seconds\n\n' +
+            '_Please store this information safely_',
             { parse_mode: 'Markdown' }
         );
 
-        // 10秒后删除消息
+        // Delete message after 10 seconds
         setTimeout(async () => {
             try {
                 await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id);
+                // Optionally send a confirmation message
+                await ctx.reply('🔒 Sensitive information has been deleted for security');
             } catch (error) {
-                console.error('Error deleting message:', error);
+                console.error('Error deleting sensitive message:', error);
             }
         }, 10000);
 
     } catch (error) {
-        console.error('Error showing keys:', error);
-        await ctx.reply('❌ 获取钱包信息失败，请确保你已生成钱包');
+        console.error('Failed to show wallet information:', error);
+        await ctx.reply('❌ Failed to retrieve wallet information. Please ensure you have generated a wallet first.');
     }
 }
-
 
 export async function getWalletBalance(token, wallet) {
     try {
@@ -2007,11 +2015,15 @@ export async function handleCheckBalance(ctx) {
             return ctx.reply('❌ Wallet not found. Please use /generatewallet to create one first');
         }
 
-        // Query balances
-        await ctx.reply('🔄 *Checking balances...*', { parse_mode: 'Markdown' });
+        // Send loading message and store the message object
+        const loadingMsg = await ctx.reply('🔄 *Checking balances...*', { parse_mode: 'Markdown' });
 
+        // Query balances
         const ethBalance = await getWalletBalance(ETH_ADDRESS, walletData.address);
         const gtBalance = await getWalletBalance(GAME_TOKEN_ADDRESS, walletData.address);
+
+        // Delete the loading message
+        await ctx.telegram.deleteMessage(ctx.chat.id, loadingMsg.message_id);
 
         // Send balance information
         await ctx.reply(

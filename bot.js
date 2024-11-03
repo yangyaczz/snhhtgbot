@@ -25,7 +25,7 @@ const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 bot.telegram.setMyCommands([
     { command: 'start', description: 'start' },
     // { command: 'generatewallet', description: 'generate wallet' },
-    { command: 'balance', description: 'check balance' },
+    // { command: 'balance', description: 'check balance' },
 ]).then(() => {
     console.log('命令已注册');
 }).catch(error => {
@@ -141,21 +141,21 @@ Use the menu buttons below to access features
 
 
 // 处理菜单按钮点击
-// bot.hears('🔑 Create Wallet', async (ctx) => {
-//     await handleGenerateWallet(ctx);
-// });
+bot.hears('🔑 Create Wallet', async (ctx) => {
+    await handleGenerateWallet(ctx);
+});
 
-// bot.hears('💧 Get Tokens', async (ctx) => {
-//     await handleSendFaucet(ctx);
-// });
+bot.hears('💧 Get Tokens', async (ctx) => {
+    await handleSendFaucet(ctx);
+});
 
 bot.hears('👛 View Balance', async (ctx) => {
     await handleCheckBalance(ctx);
 });
 
-// bot.hears('⚙️ Deploy Account', async (ctx) => {
-//     await handleDeployAccount(ctx);
-// });
+bot.hears('⚙️ Deploy Account', async (ctx) => {
+    await handleDeployAccount(ctx);
+});
 
 
 bot.hears('✉️ Create Red Packet', async (ctx) => {
@@ -401,9 +401,6 @@ Please enter the secret key:`, {
         await ctx.reply('❌ An error occurred. Please try again.');
     }
 });
-
-
-
 
 
 
