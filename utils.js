@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 
-import { Account, ec, json, stark, RpcProvider, hash, CallData, Contract, cairo } from 'starknet';
+import { Account, ec, json, stark, RpcProvider, hash, CallData, Contract, cairo, byteArray, shortString } from 'starknet';
 import { log } from 'console';
 import { exit } from 'process';
 
@@ -14,6 +14,8 @@ dotenv.config();
 const ETH_ADDRESS = '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7'
 const RED_ENVELOPE_ADDRESS = '0x017ae406af61053d222b28456112062b93a5d0914a84f23a0d2847685d1a9c56'
 const GAME_TOKEN_ADDRESS = '0x019be8d7ed4b93a4e924218a0d3e08abf0b33623d655b9c04197eb189c3f3d8c'
+
+const PREDICTION_ADDRESS = '0x1cf027a162c27ef1de99f4b9126ff707ab2a2e26c8ba47d9f840831486ae3a3'
 
 
 const erc20ABI = [
@@ -1665,6 +1667,394 @@ const GameTokenABI = [
     }
 ]
 
+const PredictionABI = [
+    {
+        "type": "impl",
+        "name": "MarketFactory",
+        "interface_name": "contracts::Prediction::IMarketFactory"
+    },
+    {
+        "type": "struct",
+        "name": "core::byte_array::ByteArray",
+        "members": [
+            {
+                "name": "data",
+                "type": "core::array::Array::<core::bytes_31::bytes31>"
+            },
+            {
+                "name": "pending_word",
+                "type": "core::felt252"
+            },
+            {
+                "name": "pending_word_len",
+                "type": "core::integer::u32"
+            }
+        ]
+    },
+    {
+        "type": "struct",
+        "name": "core::integer::u256",
+        "members": [
+            {
+                "name": "low",
+                "type": "core::integer::u128"
+            },
+            {
+                "name": "high",
+                "type": "core::integer::u128"
+            }
+        ]
+    },
+    {
+        "type": "enum",
+        "name": "core::bool",
+        "variants": [
+            {
+                "name": "False",
+                "type": "()"
+            },
+            {
+                "name": "True",
+                "type": "()"
+            }
+        ]
+    },
+    {
+        "type": "struct",
+        "name": "contracts::Prediction::Outcome",
+        "members": [
+            {
+                "name": "name",
+                "type": "core::felt252"
+            },
+            {
+                "name": "bought_shares",
+                "type": "core::integer::u256"
+            }
+        ]
+    },
+    {
+        "type": "enum",
+        "name": "core::option::Option::<contracts::Prediction::Outcome>",
+        "variants": [
+            {
+                "name": "Some",
+                "type": "contracts::Prediction::Outcome"
+            },
+            {
+                "name": "None",
+                "type": "()"
+            }
+        ]
+    },
+    {
+        "type": "struct",
+        "name": "contracts::Prediction::Market",
+        "members": [
+            {
+                "name": "owner",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "name": "token",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "name": "name",
+                "type": "core::byte_array::ByteArray"
+            },
+            {
+                "name": "market_id",
+                "type": "core::integer::u256"
+            },
+            {
+                "name": "description",
+                "type": "core::byte_array::ByteArray"
+            },
+            {
+                "name": "outcomes",
+                "type": "(contracts::Prediction::Outcome, contracts::Prediction::Outcome)"
+            },
+            {
+                "name": "image",
+                "type": "core::byte_array::ByteArray"
+            },
+            {
+                "name": "is_settled",
+                "type": "core::bool"
+            },
+            {
+                "name": "is_active",
+                "type": "core::bool"
+            },
+            {
+                "name": "deadline",
+                "type": "core::integer::u64"
+            },
+            {
+                "name": "winning_outcome",
+                "type": "core::option::Option::<contracts::Prediction::Outcome>"
+            },
+            {
+                "name": "money_in_pool",
+                "type": "core::integer::u256"
+            }
+        ]
+    },
+    {
+        "type": "struct",
+        "name": "contracts::Prediction::UserPosition",
+        "members": [
+            {
+                "name": "amount",
+                "type": "core::integer::u256"
+            },
+            {
+                "name": "has_claimed",
+                "type": "core::bool"
+            }
+        ]
+    },
+    {
+        "type": "struct",
+        "name": "contracts::Prediction::UserBet",
+        "members": [
+            {
+                "name": "outcome",
+                "type": "contracts::Prediction::Outcome"
+            },
+            {
+                "name": "position",
+                "type": "contracts::Prediction::UserPosition"
+            }
+        ]
+    },
+    {
+        "type": "interface",
+        "name": "contracts::Prediction::IMarketFactory",
+        "items": [
+            {
+                "type": "function",
+                "name": "create_market",
+                "inputs": [
+                    {
+                        "name": "owner",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "token",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "name",
+                        "type": "core::byte_array::ByteArray"
+                    },
+                    {
+                        "name": "description",
+                        "type": "core::byte_array::ByteArray"
+                    },
+                    {
+                        "name": "outcomes",
+                        "type": "(core::felt252, core::felt252)"
+                    },
+                    {
+                        "name": "image",
+                        "type": "core::byte_array::ByteArray"
+                    },
+                    {
+                        "name": "deadline",
+                        "type": "core::integer::u64"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "buy_shares",
+                "inputs": [
+                    {
+                        "name": "market_id",
+                        "type": "core::integer::u256"
+                    },
+                    {
+                        "name": "token_to_mint",
+                        "type": "core::integer::u8"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "settle_market",
+                "inputs": [
+                    {
+                        "name": "market_id",
+                        "type": "core::integer::u256"
+                    },
+                    {
+                        "name": "winning_outcome",
+                        "type": "core::integer::u8"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "claim_winnings",
+                "inputs": [
+                    {
+                        "name": "market_id",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "get_market",
+                "inputs": [
+                    {
+                        "name": "market_id",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "contracts::Prediction::Market"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "get_user_bet",
+                "inputs": [
+                    {
+                        "name": "user",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "market_id",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "contracts::Prediction::UserBet"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "get_idx",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            }
+        ]
+    },
+    {
+        "type": "constructor",
+        "name": "constructor",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "core::starknet::contract_address::ContractAddress"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "contracts::Prediction::MarketFactory::MarketCreated",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "market",
+                "type": "contracts::Prediction::Market",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "contracts::Prediction::MarketFactory::MarketSettled",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "market",
+                "type": "contracts::Prediction::Market",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "contracts::Prediction::MarketFactory::WinningsClaimed",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "user",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            },
+            {
+                "name": "market",
+                "type": "contracts::Prediction::Market",
+                "kind": "data"
+            },
+            {
+                "name": "outcome",
+                "type": "contracts::Prediction::Outcome",
+                "kind": "data"
+            },
+            {
+                "name": "amount",
+                "type": "core::integer::u256",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "contracts::Prediction::MarketFactory::Event",
+        "kind": "enum",
+        "variants": [
+            {
+                "name": "MarketCreated",
+                "type": "contracts::Prediction::MarketFactory::MarketCreated",
+                "kind": "nested"
+            },
+            {
+                "name": "MarketSettled",
+                "type": "contracts::Prediction::MarketFactory::MarketSettled",
+                "kind": "nested"
+            },
+            {
+                "name": "WinningsClaimed",
+                "type": "contracts::Prediction::MarketFactory::WinningsClaimed",
+                "kind": "nested"
+            }
+        ]
+    }
+]
+
 //new Argent X account v0.3.0
 const argentXaccountSepoliaClassHash = '0x1a736d6ed154502257f02b1ccdf4d9d1089f80811cd6acad48e6b6a9d1f2003';
 
@@ -2542,7 +2932,7 @@ export async function claimRedEnvelope(ctx, password) {
                 '🎉 *Successfully Claimed!*\n\n' +
                 `Amount Received: *${ethers.utils.formatEther(claimAmount.toString())} TOKEN*\n` +
                 `🔍 [View Transaction](${url})\n\n`,
-                
+
                 {
                     parse_mode: 'Markdown',
                     disable_web_page_preview: true
@@ -2577,5 +2967,587 @@ export async function claimRedEnvelope(ctx, password) {
         }
 
         await ctx.reply(errorMessage);
+    }
+}
+
+
+
+//  prediction
+
+export async function handleCreatePrediction(ctx) {
+    try {
+        if (!ctx || typeof ctx.reply !== 'function') {
+            throw new Error('Invalid context object provided');
+        }
+
+        // 检查是否为私聊
+        if (ctx.chat?.type !== 'private') {
+            return ctx.reply('⚠️ For security reasons, this command can only be used in private chat');
+        }
+
+        // 解析命令参数 /createprediction name | description | optionA | optionB | hours
+        const args = ctx.message.text.split('/createprediction ')[1];
+        if (!args) {
+            return ctx.reply(`
+                ❌ Invalid format. Please use:
+                /createprediction name | description | optionA | optionB | hours
+
+                Example:
+                /createprediction Bitcoin Price | Will BTC be above 80k? | Yes | No | 24`
+            );
+        }
+
+        const [name, description, optionA, optionB, hours] = args.split('|').map(item => item.trim());
+
+        // 验证参数
+        if (!name || !description || !optionA || !optionB || !hours) {
+            return ctx.reply('❌ Missing parameters. Please provide all required information.');
+        }
+
+        const duration = Number(hours);
+        if (!Number.isInteger(duration) || duration <= 0) {
+            return ctx.reply('❌ Duration must be a positive integer (hours)');
+        }
+
+        // 获取用户的钱包信息
+        const userId = ctx.from.id;
+        const walletData = await WalletStorage.getWallet(userId);
+
+        if (!walletData) {
+            return ctx.reply('❌ Wallet not found. Please use /generatewallet first');
+        }
+
+        // 发送创建预测市场交易
+        await ctx.reply('🎯 *Creating prediction market...*', { parse_mode: 'Markdown' });
+
+        const provider = new RpcProvider({ nodeUrl: process.env.RPC_URL });
+        const account = new Account(provider, walletData.address, walletData.privateKey);
+
+        const predictionContract = new Contract(PredictionABI, PREDICTION_ADDRESS, account);
+
+        // 计算截止时间（当前时间 + 小时数）
+        const deadline = (Math.floor(Date.now() / 1000) + (duration * 3600));
+
+        const outcomesTul = cairo.tuple(shortString.encodeShortString(optionA), shortString.encodeShortString(optionB))
+
+        // 执行创建预测市场交易
+        const tx = await account.execute({
+            contractAddress: PREDICTION_ADDRESS,
+            entrypoint: 'create_market',
+            calldata: CallData.compile([
+                walletData.address,           // owner
+                GAME_TOKEN_ADDRESS,           // token
+                byteArray.byteArrayFromString(name),     // name
+                byteArray.byteArrayFromString(description),     // description
+                outcomesTul,          // outcomes
+                byteArray.byteArrayFromString("pic"),          // image (empty for now)
+                deadline.toString()           // deadline
+            ])
+        });
+
+        let receipt = await provider.waitForTransaction(tx.transaction_hash);  //tx.transaction_hash
+
+        const url = 'https://sepolia.voyager.online/tx/' + tx.transaction_hash;
+
+        const events = predictionContract.parseEvents(receipt);
+        const eventData = Object.values(events[0])[0];
+
+        // 发送创建成功信息
+        await ctx.reply(
+            '🎯 *Prediction Market Created Successfully*\n\n' +
+            `ID: *${eventData.market.market_id.toString()}*\n` +
+            `Name: *${eventData.market.name}*\n` +
+            `Description: *${eventData.market.description}*\n` +
+            `Option A: *${optionA}*\n` +
+            `Option B: *${optionB}*\n` +
+            `Deadline: *${formatDeadline(deadline)}*\n` +
+            `Transaction: ${url}\n\n` +
+            'Users can now place bets on this market.',
+            {
+                parse_mode: 'Markdown',
+                disable_web_page_preview: true
+            }
+        );
+
+    } catch (error) {
+        console.error('Failed to create prediction market:', error);
+        await ctx.reply('❌ Failed to create prediction market. Please try again later.');
+    }
+}
+
+function formatDeadline(timestamp) {
+    const timestampNum = Number(timestamp);
+    const date = new Date(timestampNum * 1000);
+    const utcString = date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: 'UTC'
+    }).replace(',', '');
+
+    return `${utcString} (UTC+0)`;
+}
+
+
+
+export async function handleGetMarket(ctx) {
+    try {
+        const args = ctx.message.text.split(' ');
+        if (args.length !== 2) {
+            return ctx.reply(`
+❌ Invalid format. Please use:
+/getmarket <market_id>
+
+Example:
+/getmarket 1`);
+        }
+
+        const marketId = args[1];
+
+        if (!Number.isInteger(Number(marketId)) || Number(marketId) <= 0) {
+            return ctx.reply('❌ Market ID must be a positive integer');
+        }
+
+        // 获取用户钱包
+        const userId = ctx.from.id;
+        const walletData = await WalletStorage.getWallet(userId);
+
+        if (!walletData) {
+            return ctx.reply('❌ Wallet not found. Please use /generatewallet first');
+        }
+
+        const provider = new RpcProvider({ nodeUrl: process.env.RPC_URL });
+        const contract = new Contract(PredictionABI, PREDICTION_ADDRESS, provider);
+
+        const marketInfo = await contract.get_market(marketId);
+        console.log("Market info:", marketInfo);
+
+        if (!marketInfo) {
+            return ctx.reply('❌ Market not found');
+        }
+
+        const outcome1Shares = ethers.utils.formatEther(marketInfo.outcomes[0].bought_shares);
+        const outcome2Shares = ethers.utils.formatEther(marketInfo.outcomes[1].bought_shares);
+        const totalPool = ethers.utils.formatEther(marketInfo.money_in_pool);
+
+        // 检查市场状态
+        const currentTime = Math.floor(Date.now() / 1000);
+        const isExpired = Number(marketInfo.deadline) <= currentTime;
+
+        let statusEmoji;
+        let status;
+        if (marketInfo.is_settled) {
+            statusEmoji = '🔒';
+            status = 'Settled';
+        } else if (isExpired) {
+            statusEmoji = '⏰';
+            status = 'Expired (Pending Settlement)';
+        } else if (marketInfo.is_active) {
+            statusEmoji = '🟢';
+            status = 'Active';
+        } else {
+            statusEmoji = '🔸';
+            status = 'Inactive';
+        }
+
+        // 根据市场状态决定是否显示按钮
+        let messageOptions = {
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true
+        };
+
+        // 只有在市场未结算、未过期且处于活跃状态时才添加按钮
+        if (!marketInfo.is_settled && !isExpired && marketInfo.is_active) {
+            messageOptions.reply_markup = {
+                inline_keyboard: [
+                    [
+                        {
+                            text: `📈 ${shortString.decodeShortString(marketInfo.outcomes[0].name)} (${outcome1Shares} shares)`,
+                            callback_data: `bet_${marketId}_0`
+                        },
+                        {
+                            text: `📉 ${shortString.decodeShortString(marketInfo.outcomes[1].name)} (${outcome2Shares} shares)`,
+                            callback_data: `bet_${marketId}_1`
+                        }
+                    ]
+                ]
+            };
+        }
+
+        // 计算剩余时间或已过期时间
+        const timeString = isExpired
+            ? `Expired ${formatTimeDifference(currentTime - Number(marketInfo.deadline))} ago`
+            : `${formatTimeDifference(Number(marketInfo.deadline) - currentTime)} remaining`;
+
+        // 构建消息内容
+        let message = `
+🎯 *Prediction Market #${marketId}*
+
+${statusEmoji} Status: *${status}*
+
+📊 *Market Details*
+Name: *${marketInfo.name}*
+Description: *${marketInfo.description}*
+
+💰 *Pool Information*
+Total Pool: *${totalPool} TOKEN*
+Deadline: *${formatDeadline(marketInfo.deadline)}*
+⏳ Time: *${timeString}*
+
+📈 *Options*
+0️⃣ *${shortString.decodeShortString(marketInfo.outcomes[0].name)}*: ${outcome1Shares} shares
+1️⃣ *${shortString.decodeShortString(marketInfo.outcomes[1].name)}*: ${outcome2Shares} shares`;
+
+        // 根据不同状态添加相应提示
+        if (marketInfo.is_settled && marketInfo.winning_outcome && !marketInfo.winning_outcome.None) {
+            const winnerName = shortString.decodeShortString(marketInfo.winning_outcome.Some.name);
+            message += `\n\n🏆 *Winning Option: ${winnerName}*`;
+            if (totalPool > 0) {
+                message += `\n📢 Winners can claim rewards using /claimwinnings ${marketId}`;
+            }
+        } else if (isExpired) {
+            message += `\n\n⏰ *Market has expired*\nWaiting for settlement by market owner.`;
+
+            // 如果是市场所有者查看，提示可以结算
+            if (marketInfo.owner.toString() === walletData?.address) {
+                message += `\n📢 You can settle this market using /settlemarket ${marketId} <winning_option>`;
+            }
+        } else if (marketInfo.is_active) {
+            message += `\n\nClick the buttons below to place your bet!
+ℹ️ Forward this message to share with others`;
+        } else {
+            message += `\n\n⚠️ This market is no longer active.`;
+        }
+
+        await ctx.reply(message, messageOptions);
+
+    } catch (error) {
+        console.error('Failed to get market info:', error);
+        await ctx.reply('❌ Failed to get market information. Please try again later.');
+    }
+}
+
+// 格式化时间差异
+function formatTimeDifference(seconds) {
+    if (seconds < 60) {
+        return `${seconds} seconds`;
+    }
+    if (seconds < 3600) {
+        const minutes = Math.floor(seconds / 60);
+        return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    }
+    if (seconds < 86400) {
+        const hours = Math.floor(seconds / 3600);
+        return `${hours} hour${hours !== 1 ? 's' : ''}`;
+    }
+    const days = Math.floor(seconds / 86400);
+    return `${days} day${days !== 1 ? 's' : ''}`;
+}
+
+
+// 处理刷新按钮回调
+export async function handleRefreshCallback(ctx) {
+    try {
+        const callbackData = ctx.callbackQuery.data;
+        const marketId = callbackData.split('_')[1];
+
+        // 重新获取市场信息并更新消息
+        await ctx.answerCbQuery('Refreshing market info...');
+
+        // 创建新的消息上下文并调用 handleGetMarket
+        // const newCtx = {
+        //     ...ctx,
+        //     message: {
+        //         ...ctx.callbackQuery.message,
+        //         text: `/getmarket ${marketId}`
+        //     }
+        // };
+        // await handleGetMarket(newCtx);
+
+    } catch (error) {
+        console.error('Error refreshing market info:', error);
+        await ctx.answerCbQuery('Failed to refresh market info');
+    }
+}
+
+export async function placeBet(ctx, marketId, option, amount) {
+    try {
+        const userId = ctx.from.id;
+        const walletData = await WalletStorage.getWallet(userId);
+
+        if (!walletData) {
+            throw new Error('Wallet not found');
+        }
+
+        const provider = new RpcProvider({ nodeUrl: process.env.RPC_URL });
+        const account = new Account(provider, walletData.address, walletData.privateKey);
+
+        // 执行下注交易
+        const tx = await account.execute([
+            {
+                contractAddress: GAME_TOKEN_ADDRESS,
+                entrypoint: 'approve',
+                calldata: CallData.compile([
+                    PREDICTION_ADDRESS,  // spender (红包合约地址)
+                    cairo.uint256(ethers.utils.parseEther(amount).toString())        // amount
+                ])
+            },
+            {
+                contractAddress: PREDICTION_ADDRESS,
+                entrypoint: 'buy_shares',
+                calldata: CallData.compile([
+                    cairo.uint256(marketId),           // market_id
+                    option,            // token_to_mint
+                    cairo.uint256(ethers.utils.parseEther(amount).toString()) // amount
+                ])
+            }
+        ]);
+
+        let res = await provider.waitForTransaction(tx.transaction_hash);
+        console.log("Transaction result:", res);
+
+        const url = 'https://sepolia.voyager.online/tx/' + tx.transaction_hash;
+
+        await ctx.reply(
+            '✅ *Bet Placed Successfully*\n\n' +
+            `Amount: *${amount} TOKEN*\n` +
+            `Option: *${option}*\n` +
+            `Transaction: ${url}`,
+            {
+                parse_mode: 'Markdown',
+                disable_web_page_preview: true
+            }
+        );
+
+    } catch (error) {
+        console.error('Error placing bet:', error);
+        throw error;
+    }
+}
+
+
+export async function handleSettleMarket(ctx) {
+    try {
+        // 解析命令参数 /settlemarket <market_id> <winning_option>
+        const args = ctx.message.text.split(' ');
+        if (args.length !== 3) {
+            return ctx.reply(`
+❌ Invalid format. Please use:
+/settlemarket <market_id> <winning_option>
+
+Example:
+/settlemarket 1 0     // Settle market #1 with option 0 as winner
+/settlemarket 2 1     // Settle market #2 with option 1 as winner`);
+        }
+
+        const marketId = args[1];
+        const winningOption = args[2];
+
+        // 验证参数
+        if (!Number.isInteger(Number(marketId)) || Number(marketId) <= 0) {
+            return ctx.reply('❌ Market ID must be a positive integer');
+        }
+
+        if (winningOption !== '0' && winningOption !== '1') {
+            return ctx.reply('❌ Winning option must be 0 or 1');
+        }
+
+        // 获取用户钱包
+        const userId = ctx.from.id;
+        const walletData = await WalletStorage.getWallet(userId);
+
+        if (!walletData) {
+            return ctx.reply('❌ Wallet not found. Please use /generatewallet first');
+        }
+
+        // 连接到合约
+        const provider = new RpcProvider({ nodeUrl: process.env.RPC_URL });
+        const account = new Account(provider, walletData.address, walletData.privateKey);
+
+        // 先获取市场信息验证
+        const contract = new Contract(PredictionABI, PREDICTION_ADDRESS, provider);
+
+        const marketInfo = await contract.get_market(marketId);
+
+        if (!marketInfo) {
+            return ctx.reply('❌ Market not found');
+        }
+
+        // 验证市场状态
+        if (marketInfo.is_settled) {
+            return ctx.reply('❌ Market has already been settled');
+        }
+
+        let marketInfoOwner = '0x' + (marketInfo.owner).toString(16)
+
+        if (formatStarknetAddress(marketInfoOwner) !== formatStarknetAddress(walletData.address)) {
+            return ctx.reply('❌ Only market owner can settle the market');
+        }
+
+        // if (Number(marketInfo.deadline) > Math.floor(Date.now() / 1000)) {
+        //     return ctx.reply('❌ Market has not reached deadline yet');
+        // }
+
+        // 发送结算交易
+        await ctx.reply('🎯 *Settling market...*', { parse_mode: 'Markdown' });
+
+        const tx = await account.execute({
+            contractAddress: PREDICTION_ADDRESS,
+            entrypoint: 'settle_market',
+            calldata: CallData.compile([
+                cairo.uint256(marketId),                 // market_id
+                parseInt(winningOption)   // winning_outcome
+            ])
+        });
+
+        let res = await provider.waitForTransaction(tx.transaction_hash);
+        console.log("Settlement result:", res);
+
+        const url = 'https://sepolia.voyager.online/tx/' + tx.transaction_hash;
+
+        // 获取选项名称
+        const winningOptionName = shortString.decodeShortString(marketInfo.outcomes[parseInt(winningOption)].name);
+
+        // 发送成功消息
+        await ctx.reply(
+            '✅ *Market Settled Successfully*\n\n' +
+            `Market ID: *${marketId}*\n` +
+            `Winning Option: *${winningOptionName}* \n` +
+            `Transaction: ${url}\n\n` +
+            'Users can now claim their winnings using /claimwinnings',
+            {
+                parse_mode: 'Markdown',
+                disable_web_page_preview: true
+            }
+        );
+
+    } catch (error) {
+        console.error('Failed to settle market:', error);
+        let errorMessage = '❌ Failed to settle market.';
+
+        if (error.message.includes('Not owner')) {
+            errorMessage = '❌ Only the market owner can settle this market.';
+        } else if (error.message.includes('Market not settled')) {
+            errorMessage = '❌ Market cannot be settled yet.';
+        }
+
+        await ctx.reply(errorMessage + ' Please try again later.');
+    }
+}
+
+
+
+export async function handleClaimWinnings(ctx) {
+    try {
+        // 解析命令参数 /claimwinnings <market_id>
+        const args = ctx.message.text.split(' ');
+        if (args.length !== 2) {
+            return ctx.reply(`
+❌ Invalid format. Please use:
+/claimwinnings <market_id>
+
+Example:
+/claimwinnings 1`);
+        }
+
+        const marketId = args[1];
+
+        // 验证参数
+        if (!Number.isInteger(Number(marketId)) || Number(marketId) <= 0) {
+            return ctx.reply('❌ Market ID must be a positive integer');
+        }
+
+        // 获取用户钱包
+        const userId = ctx.from.id;
+        const walletData = await WalletStorage.getWallet(userId);
+
+        if (!walletData) {
+            return ctx.reply('❌ Wallet not found. Please use /generatewallet first');
+        }
+
+        // 连接到合约
+        const provider = new RpcProvider({ nodeUrl: process.env.RPC_URL });
+        const account = new Account(provider, walletData.address, walletData.privateKey);
+
+        // 使用统一的 PredictionABI
+        const contract = new Contract(PredictionABI, PREDICTION_ADDRESS, provider);
+        const contractWithSigner = new Contract(PredictionABI, PREDICTION_ADDRESS, account);
+
+        // 获取市场信息
+        const marketInfo = await contract.get_market(marketId);
+
+        if (!marketInfo) {
+            return ctx.reply('❌ Market not found');
+        }
+
+        // 检查市场是否已结算
+        if (!marketInfo.is_settled) {
+            return ctx.reply('❌ Market has not been settled yet');
+        }
+
+        // 获取用户下注信息
+        const userBet = await contract.get_user_bet(walletData.address, marketId);
+        
+        if (!userBet || userBet.position.amount.toString() === '0') {
+            return ctx.reply('❌ You have no bets in this market');
+        }
+
+        if (userBet.position.has_claimed) {
+            return ctx.reply('❌ You have already claimed your winnings from this market');
+        }
+
+
+        // 检查是否获胜
+        if (userBet.outcome.name !== Object.values(marketInfo.winning_outcome)[0].name) {
+            return ctx.reply('❌ Sorry, your bet did not win in this market');
+        }
+
+        // 发送领取奖励的交易
+        await ctx.reply('🎯 *Claiming winnings...*', { parse_mode: 'Markdown' });
+
+        const tx = await account.execute([
+            {
+                contractAddress: PREDICTION_ADDRESS,
+                entrypoint: 'claim_winnings',
+                calldata: CallData.compile([
+                    cairo.uint256(marketId),      // market_id
+                ])
+            }
+        ]);
+
+        let res = await provider.waitForTransaction(tx.transaction_hash);
+        console.log("Claim result:", res);
+
+        const url = 'https://sepolia.voyager.online/tx/' + tx.transaction_hash;
+
+
+        // 发送成功消息
+        await ctx.reply(
+            '✅ *Winnings Claimed Successfully*\n\n' +
+            `Market: *${marketInfo.name}*\n` +
+            `Transaction: ${url}`,
+            {
+                parse_mode: 'Markdown',
+                disable_web_page_preview: true
+            }
+        );
+
+    } catch (error) {
+        console.error('Failed to claim winnings:', error);
+        let errorMessage = '❌ Failed to claim winnings.';
+        
+        if (error.message.includes('User has claimed winnings')) {
+            errorMessage = '❌ You have already claimed your winnings from this market.';
+        } else if (error.message.includes('User did not win')) {
+            errorMessage = '❌ Sorry, your bet did not win in this market.';
+        } else if (error.message.includes('Market not settled')) {
+            errorMessage = '❌ This market has not been settled yet.';
+        }
+
+        await ctx.reply(errorMessage + ' Please try again later.');
     }
 }

@@ -6,9 +6,9 @@ import { ethers } from 'ethers';
 
 
 
-import { WalletGenerator, SecurityUtils, WalletStorage, handleGenerateWallet, handleShowWallet, handleCheckBalance, handleDeployAccount, handleSendFaucet, handleCreateRedEnvelope, handleClaimRedEnvelope, createRedEnvelope, claimRedEnvelope } from './utils.js';
+import { WalletGenerator, SecurityUtils, WalletStorage, handleGenerateWallet, handleShowWallet, handleCheckBalance, handleDeployAccount, handleSendFaucet, handleCreateRedEnvelope, handleClaimRedEnvelope, createRedEnvelope, claimRedEnvelope, handleCreatePrediction } from './utils.js';
 
-
+import { handleGetMarket, handleRefreshCallback, placeBet, handleSettleMarket, handleClaimWinnings } from './utils.js';
 // 加载环境变量
 dotenv.config();
 const config = {
@@ -26,6 +26,12 @@ bot.telegram.setMyCommands([
     { command: 'start', description: 'start' },
     // { command: 'generatewallet', description: 'generate wallet' },
     // { command: 'balance', description: 'check balance' },
+    { command: 'createprediction', description: 'Create a new prediction market' },
+    { command: 'getmarket', description: 'Get a new prediction market' },
+
+    { command: 'settlemarket', description: 'Settle a prediction market' },
+    { command: 'claimwinnings', description: 'Claim winnings' },
+
 ]).then(() => {
     console.log('命令已注册');
 }).catch(error => {
@@ -51,8 +57,13 @@ const bottomMenu = {
     reply_markup: {
         keyboard: [
             [{ text: '🔑 Create Wallet' }, { text: '💧 Get Tokens' }],
-            [{ text: '👛 View Balance' },  { text: '⚙️ Deploy Account' }],
+            [{ text: '👛 View Balance' }, { text: '⚙️ Deploy Account' }],
             [{ text: '✉️ Create Red Packet' }, { text: '🎁 Claim Red Packet' }],
+            [{ text: '🎯 _Create Prediction' }, { text: '📊 _Get Market' }],
+            [{ text: '⚖️ _Settle Market' }, { text: '💰 _Claim Winnings' }],
+            [{ text: '📅 _Create Event' }, { text: '✅ _Check In Event' }],
+            [{ text: '🎫 _Event Distribute Token' }, { text: '🖼️ _Event Distribute NFT' }]
+
         ],
         resize_keyboard: true,  // 自动调整键盘大小
         persistent: true,       // 保持菜单始终可见
@@ -129,6 +140,11 @@ bot.command('start', async (ctx) => {
 /create_red_envelope <total_value> <number_of_packets> - Create a new red packet
 /claim_red_envelope <secret_key> - Claim a red packet
 
+/createprediction name | description | optionA | optionB | hours
+/getmarket <market_id>
+/settlemarket <market_id> <winning_option>
+/claimwinnings <market_id>
+
 ⭐️ *Quick Actions:*
 Use the menu buttons below to access features
     `;
@@ -166,8 +182,8 @@ bot.hears('✉️ Create Red Packet', async (ctx) => {
         }
 
         // 初始化创建流程
-        userCreateStates.set(ctx.from.id, {
-            state: CREATE_STATES.WAITING_AMOUNT
+        userStates.set(ctx.from.id, {
+            state: USER_STATES.WAITING_AMOUNT
         });
 
         const msg = `
@@ -288,14 +304,22 @@ bot.action('fauect_', async (ctx) => {
 });
 
 
+bot.command('createprediction', handleCreatePrediction);
+
+bot.command('getmarket', handleGetMarket);
+bot.action(/^bet_\d+_[01]$/, handleBetCallback);
+bot.action(/^refresh_\d+$/, handleRefreshCallback);
+
+
 // 用户状态管理
-const userCreateStates = new Map();
+const userStates = new Map();
 
 // 状态类型
-const CREATE_STATES = {
+const USER_STATES = {
     IDLE: 'IDLE',
     WAITING_AMOUNT: 'WAITING_AMOUNT',
-    WAITING_COUNT: 'WAITING_COUNT'
+    WAITING_COUNT: 'WAITING_COUNT',
+    BETTING: 'BETTING'
 };
 
 bot.command('create_red_envelope', handleCreateRedEnvelope);
@@ -311,8 +335,8 @@ bot.action('CheckRedEnvelope', async (ctx) => {
         }
 
         // 初始化创建流程
-        userCreateStates.set(ctx.from.id, {
-            state: CREATE_STATES.WAITING_AMOUNT
+        userStates.set(ctx.from.id, {
+            state: USER_STATES.WAITING_AMOUNT
         });
 
         const msg = `
@@ -359,7 +383,7 @@ bot.action(/confirm_create_(.+)_(.+)/, async (ctx) => {
 // 取消创建
 bot.action('cancel_create', async (ctx) => {
     await ctx.answerCbQuery();
-    userCreateStates.delete(ctx.from.id);
+    userStates.delete(ctx.from.id);
     await ctx.reply('🚫 Red packet creation cancelled');
 });
 
@@ -370,7 +394,9 @@ bot.command('claim_red_envelope', handleClaimRedEnvelope)
 //     await ctx.answerCbQuery();
 //     await handleClaimRedEnvelope(ctx);
 // });
+bot.command('settlemarket', handleSettleMarket);
 
+bot.command('claimwinnings', handleClaimWinnings);
 
 // 用户状态管理
 const userClaimStates = new Map();
@@ -410,57 +436,82 @@ bot.action('check_balance', async (ctx) => {
     await handleCheckBalance(ctx);
 });
 
-// 统一的文本消息处理器
 bot.on('text', async (ctx) => {
     const userId = ctx.from.id;
 
     // 如果是命令则跳过
     if (ctx.message.text.startsWith('/')) return;
 
-    // 检查是否在创建红包状态
-    const createState = userCreateStates.get(userId);
-    if (createState) {
-        try {
-            switch (createState.state) {
-                case CREATE_STATES.WAITING_AMOUNT:
-                    // 验证并保存金额
-                    try {
-                        const amount = ctx.message.text;
-                        ethers.utils.parseEther(amount); // 验证金额格式
+    // 获取用户状态
+    const userState = userStates.get(userId);
 
-                        // 保存金额并更新状态
-                        createState.amount = amount;
-                        createState.state = CREATE_STATES.WAITING_COUNT;
+    if (!userState) {
+        // 如果没有状态，则是普通消息
+        await ctx.reply(`your message: ${ctx.message.text}`);
+        return;
+    }
 
-                        // 提示输入红包数量
-                        await ctx.reply(`
-💰 Amount: *${amount} TOKEN*
-Please enter number of shares:`, {
-                            parse_mode: 'Markdown',
-                            reply_markup: {
-                                force_reply: true,
-                                selective: true,
-                                input_field_placeholder: "Enter number of shares"
-                            }
-                        });
-                    } catch (error) {
-                        await ctx.reply('❌ Invalid amount format. Please enter a valid number.');
-                    }
-                    return;
+    try {
+        switch (userState.state) {
+            case USER_STATES.BETTING:
+                // 处理下注金额输入
+                try {
+                    const amount = ctx.message.text.trim();
+                    // 验证金额格式
+                    ethers.utils.parseEther(amount);
 
-                case CREATE_STATES.WAITING_COUNT:
-                    // 验证红包数量
-                    const count = parseInt(ctx.message.text);
-                    if (!Number.isInteger(count) || count <= 0) {
-                        await ctx.reply('❌ Please enter a valid positive integer.');
-                        return;
-                    }
+                    // 执行下注交易
+                    await placeBet(
+                        ctx,
+                        userState.marketId,
+                        userState.option,
+                        amount
+                    );
 
-                    // 显示确认信息
-                    const amount = createState.amount;
-                    const averageAmount = (Number(amount) / count).toFixed(2);
+                    // 清除用户状态
+                    userStates.delete(userId);
+
+                } catch (error) {
+                    await ctx.reply('❌ Invalid amount format. Please enter a valid number.');
+                }
+                break;
+
+            case USER_STATES.WAITING_AMOUNT:
+                // 处理红包金额输入
+                try {
+                    const amount = ctx.message.text;
+                    ethers.utils.parseEther(amount);
+
+                    userState.amount = amount;
+                    userState.state = USER_STATES.WAITING_COUNT;
 
                     await ctx.reply(`
+💰 Amount: *${amount} TOKEN*
+Please enter number of shares:`, {
+                        parse_mode: 'Markdown',
+                        reply_markup: {
+                            force_reply: true,
+                            selective: true,
+                            input_field_placeholder: "Enter number of shares"
+                        }
+                    });
+                } catch (error) {
+                    await ctx.reply('❌ Invalid amount format. Please enter a valid number.');
+                }
+                break;
+
+            case USER_STATES.WAITING_COUNT:
+                // 处理红包数量输入
+                const count = parseInt(ctx.message.text);
+                if (!Number.isInteger(count) || count <= 0) {
+                    await ctx.reply('❌ Please enter a valid positive integer.');
+                    return;
+                }
+
+                const amount = userState.amount;
+                const averageAmount = (Number(amount) / count).toFixed(2);
+
+                await ctx.reply(`
 📝 *Confirm Red Packet Details*
 
 Amount: *${amount} TOKEN*
@@ -468,49 +519,74 @@ Shares: *${count}*
 Average: *${averageAmount} TOKEN* per share
 
 Create this red packet?`, {
-                        parse_mode: 'Markdown',
-                        reply_markup: {
-                            inline_keyboard: [
-                                [{ text: '✅ Confirm', callback_data: `confirm_create_${amount}_${count}` }],
-                                [{ text: '❌ Cancel', callback_data: 'cancel_create' }]
-                            ]
-                        }
-                    });
+                    parse_mode: 'Markdown',
+                    reply_markup: {
+                        inline_keyboard: [
+                            [{ text: '✅ Confirm', callback_data: `confirm_create_${amount}_${count}` }],
+                            [{ text: '❌ Cancel', callback_data: 'cancel_create' }]
+                        ]
+                    }
+                });
 
-                    userCreateStates.delete(userId); // 清理状态
-                    return;
-            }
-        } catch (error) {
-            console.error('Error processing create input:', error);
-            await ctx.reply('❌ An error occurred. Please try again.');
-            userCreateStates.delete(userId);
-            return;
+                userStates.delete(userId);
+                break;
         }
+    } catch (error) {
+        console.error('Error processing user input:', error);
+        await ctx.reply('❌ An error occurred. Please try again.');
+        userStates.delete(userId);
     }
-
-    // 检查是否在领取红包状态
-    if (userClaimStates.get(userId)) {
-        try {
-            const password = ctx.message.text.trim();
-            // 清除用户状态
-            userClaimStates.delete(userId);
-
-            // 执行领取操作
-            await claimRedEnvelope(ctx, password);
-            return;
-        } catch (error) {
-            console.error('Error processing claim:', error);
-            await ctx.reply('❌ An error occurred. Please try again.');
-            userClaimStates.delete(userId);
-            return;
-        }
-    }
-
-    // 如果不是任何特殊状态，则是普通消息
-    await ctx.reply(`your message: ${ctx.message.text}`);
 });
 
 
+export async function handleBetCallback(ctx) {
+    try {
+        const callbackData = ctx.callbackQuery.data;
+        const [_, marketId, option] = callbackData.split('_');
+
+        if (option !== '0' && option !== '1') {
+            await ctx.answerCbQuery('❌ Invalid option', { show_alert: true });
+            return;
+        }
+
+        // 首先检查用户是否有钱包
+        const userId = ctx.from.id;
+        const walletData = await WalletStorage.getWallet(userId);
+
+        if (!walletData) {
+            await ctx.answerCbQuery('❌ Please create a wallet first using /generatewallet', { show_alert: true });
+            return;
+        }
+
+        // 初始化下注状态
+        await ctx.answerCbQuery();
+        await ctx.reply(
+            `💰 *Place Your Bet*\n\n` +
+            `Market ID: *${marketId}*\n` +
+            `Option: *${option}*\n\n` +
+            `Please enter the amount you want to bet (in TOKEN):`,
+            {
+                parse_mode: 'Markdown',
+                reply_markup: {
+                    force_reply: true,
+                    selective: true,
+                    input_field_placeholder: "Enter amount (e.g., 100)"
+                }
+            }
+        );
+
+        // 设置用户状态为下注状态
+        userStates.set(userId, {
+            state: USER_STATES.BETTING,
+            marketId: marketId,
+            option: option
+        });
+
+    } catch (error) {
+        console.error('Error handling bet callback:', error);
+        await ctx.answerCbQuery('❌ Failed to process bet', { show_alert: true });
+    }
+}
 
 
 
